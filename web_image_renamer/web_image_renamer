@@ -2,10 +2,10 @@
 
 import os, sys
 
-rootDirectory = './' # default
+root_dir = './' # default
 
-def get_files_in_directory(directory=rootDirectory):
-    directory = directory.replace('/', '')
+def get_files_in_directory(directory=root_dir):
+    directory = directory.strip('/')
     for root, dirs, files in os.walk(directory, topdown='true'):
         files = [os.path.join(root, f) for f in files]
         for file in files:
