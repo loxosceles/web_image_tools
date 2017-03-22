@@ -17,7 +17,6 @@ def resize_img(basewidth):
         img = Image.open(infile)
 
         hsize = calc_height(img.size[0], img.size[1])
-        #img = img.resize((basewidth, hsize))
 
         if hasattr(img, '_getexif'):
             orientation = 0x0112
@@ -31,8 +30,10 @@ def resize_img(basewidth):
                 }
                 if orientation in rotations:
                     img = img.transpose(rotations[orientation]).resize((hsize, basewidth))
+                    resolution = str(hsize) + "x" + str(basewidth)
                 else:
                     img = img.resize((basewidth, hsize))
+                    resolution = str(basewidth) + "x" + str(hsize)
             
 
         save_dir = str(basewidth) + "x" + str(hsize)
@@ -40,7 +41,7 @@ def resize_img(basewidth):
         if not os.path.isdir(save_dir):
            os.mkdir(save_dir) 
 
-        img.save(save_dir + "/" + file_name + "_" + save_dir, "JPEG")
+        img.save(save_dir + "/" + file_name + "_" + resolution, "JPEG")
 
         print_current_file(file_name)
 
