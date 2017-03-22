@@ -1,0 +1,29 @@
+#!/usr/bin/env python
+
+import os, sys
+
+rootDirectory = './' # default
+
+def get_files_in_directory(directory=rootDirectory):
+    directory = directory.replace('/', '')
+    for root, dirs, files in os.walk(directory, topdown='true'):
+        files = [os.path.join(root, f) for f in files]
+        for file in files:
+            new_name = root + '/' + \
+                os.path.split(file)[0].\
+                replace('./', '', 1).\
+                replace('/', '__').\
+                replace(' ', '_') + '-'
+            if not file.startswith(new_name):
+                os.rename(file, new_name +\
+                    os.path.split(file)[1])
+
+if __name__ == "__main__":
+    
+    if len(sys.argv) > 2:
+        print("Taking at most one argument")
+        sys.exit(1)
+    elif len(sys.argv) == 2:
+        get_files_in_directory(sys.argv[1])
+    else:
+        get_files_in_directory()
