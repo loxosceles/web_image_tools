@@ -2,11 +2,11 @@
 ## Tools for web image processing
 
 ### Web Resizer
-  Takes one argument and resizes every single image file. The argument will always
-  define the longer side of the picture, width or height, depending on the
-  orientation.
+  Takes one argument and resizes every single image file in the current folder. The
+  argument will always define the longer side of the picture, width or height,
+  depending on the orientation.
 
-  Aspect ratio will be calculated automatically and independently for the every
+  Aspect ratio will be calculated automatically and independently for every
   single image independently. 
   
   If the image provieds valid EXIF data this will be used
@@ -16,6 +16,16 @@
   
   Finally the new resolution will be concatenated to the new
   filename and saved within a folder which is also named after the new resolution.
+
+  #### Usage
+  web_resizer WIDTH
+  
+  #### Example
+
+    web_resizer 1000
+
+  Will result in a 1000x750 resolution for landscape and 750x1000 for portrait. The
+  folder containing these new images will be named 1000x750.
 
 ### Web Image Renamer
   Renames every image file inside a given folder hierarchy prepending that folders
@@ -45,5 +55,6 @@
 
     South_America__Colombia__Bogota__thumbnails__123.jpg
 
+  #### Usage
   
-  
+ 

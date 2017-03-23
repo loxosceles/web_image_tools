@@ -1,29 +1,51 @@
 #!/usr/bin/env python
 
-import os, sys
+from os import rename, path, walk
+import sys
 
 root_dir = './' # default
+ext = ['JPG', 'jpg', 'png', 'PNG', 'TIFF', 'tiff']
 
-def get_files_in_directory(directory=root_dir):
-    directory = directory.strip('/')
-    for root, dirs, files in os.walk(directory, topdown='true'):
-        files = [os.path.join(root, f) for f in files]
+def rename_files(directory=root_dir):
+
+    for root, dirs, files in walk(directory, topdown='true'):
+        files = filter_ext(ext, files, root)
+        if not root == './':
+            root = root + '/'
+
         for file in files:
-            new_name = root + '/' + \
-                os.path.split(file)[0].\
-                replace('./', '', 1).\
-                replace('/', '__').\
-                replace(' ', '_') + '-'
+            pd_name = transform_path(root)
+            new_name = root +\
+                pd_name + '-'
             if not file.startswith(new_name):
-                os.rename(file, new_name +\
-                    os.path.split(file)[1])
+                rename(file, new_name +\
+                    path.split(file)[1])
+
+def transform_path(p):   
+    p = p.strip('/').lstrip('.').replace(' ', '_')
+    cf = path.abspath('.').replace(' ', '_').split('/')[-1]
+    return cf + p.replace('/', '__')
+
+
+def filter_ext(ext_list, file_list, parentdir):
+    for filename in file_list:
+        filename = path.join(parentdir, filename) 
+        if filename.endswith(tuple(ext_list)):
+            yield filename
 
 if __name__ == "__main__":
-    
+
     if len(sys.argv) > 2:
         print("Taking at most one argument")
         sys.exit(1)
     elif len(sys.argv) == 2:
-        get_files_in_directory(sys.argv[1])
+        rename_files(sys.argv[1])
     else:
-        get_files_in_directory()
+        rename_files()
+
+
+
+
+
+
+
