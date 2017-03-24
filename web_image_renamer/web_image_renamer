@@ -1,5 +1,17 @@
 #!/usr/bin/env python
+"""
+Web Image Renamer
 
+Rename a every image file inside a given folder and its subfolders. The resulting
+image name will be showing the folder hierarchy in which the files are living.
+Example: ./folder1/subfolder 1/image.png will rename all files under 'subfolder' into
+folder1__subfolder_1-image.png.
+
+Spaces will be taken, also within folder names. The path can be given explicitly
+deeper inside the folder hierarchy and only files under the specified folder will be considered.
+Example: web_image_renamer folder1/subfolder\ 1 will only consider files under
+'subfolder', any image files under 'folder1' will not be renamed. 
+"""
 from os import rename, path, walk
 import sys
 
@@ -13,16 +25,11 @@ def rename_files(directory=root_dir):
     """
     for root, dirs, files in walk(directory, topdown='true'):
         files = filter_ext(ext, files, root)
-
-        if not root.endswith('/'):
-            root = root + '/'
-        if not root.startswith('./'):
-            root = './' + root
+        root = normalize_path(root)
 
         for file in files:
             pd_name = transform_path(root)
-            new_name = root +\
-                pd_name + '-'
+            new_name = './' + root + '/' + pd_name + '-'
 
             if not file.startswith(new_name):
                 rename(file, new_name +\
@@ -33,16 +40,21 @@ def transform_path(p):
     Take a path and transform it into a form suitable 
     for a file name.
     """
-    if not p.startswith('./'):
-        p = '/' + p
-    print(p)
-    p = p.strip('/').lstrip('.').replace(' ', '_')
-    print(p)
-    cf = path.abspath('./').replace(' ', '_').split('/')[-1]
-    print(cf)
-    print(cf + p.replace('/', '__'))
-    return cf + p.replace('/', '__').replace('\\', '')
+    p = p.replace(' ', '_')
+    cf = get_parent_folder('./') 
+    return cf + '__' + p.replace('/', '__')
 
+def normalize_path(s):
+    """
+    Take care of leading and trailing slashes as well as 
+    the './' case. Any slash or dot-slash at the beginning 
+    or end will be stripped.
+    """
+    s =  '/' + s.lstrip('.').strip('/')
+    return s.strip('/')
+
+def get_parent_folder(p):
+    return path.abspath(p).replace(' ', '_').split('/')[-1]
 
 def filter_ext(ext_list, file_list, parentdir):
     """ 
@@ -55,6 +67,8 @@ def filter_ext(ext_list, file_list, parentdir):
             yield filename
 
 if __name__ == "__main__":
+
+    #import pdb; pdb.set_trace()
 
     if len(sys.argv) > 2:
         print("Taking at most one argument")
