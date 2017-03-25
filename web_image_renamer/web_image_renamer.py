@@ -17,6 +17,10 @@ import sys
 
 ABS_PATH_LIMIT = 3
 
+class UrlNotValidException(Exception):
+    def __init__(self, message, *args):
+        self.message = message 
+
 class FileObj():
 
     def __init__(self, p):
@@ -28,62 +32,58 @@ class FileObj():
 
     @full_path.setter
     def full_path(self, val):
+
+        if not val.startswith(('/', './')):
+            raise UrlNotValidException("URL not valid!")
+            sys.exit(1)
+
         self._full_path = val 
         fp = path.split(val)
-        self.path = fp[0]
+        self.path_as_list = fp[0]
+
+        self.path = self.path_as_list 
+        
         self.fn = fp[1]
         self.parent_dir_name = fp[0]
-        self.path_to_name = fp[0]
-        self.path_as_list = fp[0]
+        self.path_to_name_prefix = self.path_as_list 
 
     @property
     def path(self):
         return self._path
 
     @path.setter
-    def path(self, val):
-        if not val.startswith(('.', '/')):
-            val = '/' + val
-        self._path = val + '/'
+    def path(self, l):
+        """ Take a list and concatenate the path as string"""
+        self._path = '/'.join(l)
 
     @property
-    def parent_dir_name(self):
-        return self._parent_dir_name
+    def path_to_name_prefix(self):
+        return self._path_to_name_prefix
 
-    @parent_dir_name.setter
-    def parent_dir_name(self, val):
-        self._parent_dir_name = path.abspath(val)\
-                            .replace(' ', '_').split('/')[-1]
-    @property
-    def path_to_name(self):
-        return self._path_to_name + '-'
+    @path_to_name_prefix.setter
+    def path_to_name_prefix(self, l):
+        """ Take a list and concatenate the name prefix as string"""
 
-    @path_to_name.setter
-    def path_to_name(self, val):
-
-        val = self.trunc_absolute(val)
-        
-        self._path_to_name = val.lstrip('.')\
-                                .lstrip('./')\
-                                .replace('/', '__')\
-                                .replace(' ', '_')
-
+        # Prepend path with parent directory name if relative path
+        try:
+            self._path_to_name_prefix =\
+                '__'.join(l[1:][-ABS_PATH_LIMIT:]).replace(' ', '_') + '-'
+        except IndexError as e:
+            self._path_to_name_prefix =\
+                '__'.join(l[1:]).replace(' ', '_') + '-'
+ 
     @property
     def path_as_list(self):
         return self._path_as_list
 
     @path_as_list.setter
     def path_as_list(self, val):
-        self._path_as_list = val.split('/')[1:]#[-ABS_PATH_LIMIT:]
+        self._path_as_list = val.split('/')
+        if self._path_as_list[0] == '.':
+            self._path_as_list[0] =\
+                path.abspath('./').replace(' ', '_').split('/')[-1]
+            self._path_as_list.insert(0, '..')
 
-    def trunc_absolute(self, val):
-            #val = self.path_as_list
-            return '/' + '/'.join(val)
-
-    def is_absolute(self, val):
-        if val.startswith('/'): return True
-        return False
-         
 
 root_dir = './' # default
 ext = ['JPG', 'jpg', 'png', 'PNG', 'TIFF', 'tiff']
