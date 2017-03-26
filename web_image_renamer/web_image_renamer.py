@@ -15,13 +15,17 @@ Example: web_image_renamer folder1/subfolder\ 1 will only consider files under
 from os import rename, path, walk
 import sys
 
+#import pdb; pdb.set_trace()
+
 ABS_PATH_LIMIT = 3
+directory = './' # default
+ext = ['JPG', 'jpg', 'png', 'PNG', 'TIFF', 'tiff']
 
 class UrlNotValidException(Exception):
     def __init__(self, message, *args):
         self.message = message 
 
-class FileObj():
+class FileObj(object):
 
     def __init__(self, p):
         self.full_path = p
@@ -37,19 +41,15 @@ class FileObj():
             raise UrlNotValidException("URL not valid!")
             sys.exit(1)
 
+        val = val.rstrip('/')
         self._full_path = val 
-        fp = path.split(val)
-        self.path_as_list = fp[0]
-
+        self.path_as_list = val
         self.path = self.path_as_list 
-        
-        self.fn = fp[1]
-        self.parent_dir_name = fp[0]
         self.path_to_name_prefix = self.path_as_list 
 
     @property
     def path(self):
-        return self._path
+        return self._path + '/'
 
     @path.setter
     def path(self, l):
@@ -64,7 +64,6 @@ class FileObj():
     def path_to_name_prefix(self, l):
         """ Take a list and concatenate the name prefix as string"""
 
-        # Prepend path with parent directory name if relative path
         try:
             self._path_to_name_prefix =\
                 '__'.join(l[1:][-ABS_PATH_LIMIT:]).replace(' ', '_') + '-'
@@ -85,37 +84,6 @@ class FileObj():
             self._path_as_list.insert(0, '..')
 
 
-root_dir = './' # default
-ext = ['JPG', 'jpg', 'png', 'PNG', 'TIFF', 'tiff']
-
-def rename_files(directory=root_dir):
-    """
-    Walk through a directory and renames every file prepending 
-    folder hierarchy.
-    """
-    for root, dirs, files in walk(directory, topdown='true'):
-        files = filter_ext(ext, files, root)
-        #root = normalize_path(root)
-
-        for file in files:
-
-            #renamed_file = trim_redund(file, new_path_name)
-            # renamed_file = fobj.path + '/' + 
-
-            #rename(file, renamed_file)
-            print((file, renamed_file))
-
-
-def filter_ext(ext_list, file_list, parentdir):
-    """ 
-    Add relative path to files and filter for allwed 
-    extentions.
-    """
-    for filename in file_list:
-        filename = path.join(parentdir, filename) 
-        if filename.endswith(tuple(ext_list)):
-            yield filename
-
 def trim_redund(t1, t2):
     t2 = t2.replace('/', '').replace('__-', '').replace('.', '').replace(' ', '_')
     t1 = t1.replace(' ', '_')
@@ -131,14 +99,20 @@ if __name__ == "__main__":
 
     #import pdb; pdb.set_trace()
 
-
     if len(sys.argv) > 2:
         print("Taking at most one argument")
         sys.exit(1)
-    elif len(sys.argv) == 2:
-        fobj = FileObj(sys.argv[1])
-    else:
-        fobj = FileObj('./')
 
-    rename_files(fobj.full_path)
+    if len(sys.argv) == 2:
+        directory = sys.arv[1]
+
+    for root, dirs, files in walk(directory, topdown='true'):
+        fobj = FileObj(root)
+
+        for file in files:
+
+            renamed_file = fobj.path + fobj.path_to_name_prefix + file 
+
+            #rename(file, renamed_file)
+            print((fobj.path + file, renamed_file))
 
