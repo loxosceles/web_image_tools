@@ -15,13 +15,11 @@ Example: web_image_renamer folder1/subfolder\ 1 will only consider files under
 from os import rename, path, walk
 import sys
 
-#import pdb; pdb.set_trace()
-
 ABS_PATH_LIMIT = 3
 directory = './' # default
 ext = ['JPG', 'jpg', 'png', 'PNG', 'TIFF', 'tiff']
 
-class UrlNotValidException(Exception):
+class FilePathNotValidException(Exception):
     def __init__(self, message, *args):
         self.message = message 
 
@@ -30,6 +28,15 @@ class FileObj(object):
     def __init__(self, p):
         self.full_path = p
 
+    def check_path_validity(self, val):
+        if not path.isdir(val):
+            raise FilePathNotValidException("File path not valid!")
+            sys.exit(1)
+
+        if not val.startswith(('/', './')):
+            #val
+            pass
+
     @property
     def full_path(self):
         return self._full_path
@@ -37,10 +44,7 @@ class FileObj(object):
     @full_path.setter
     def full_path(self, val):
 
-        if not val.startswith(('/', './')):
-            raise UrlNotValidException("URL not valid!")
-            sys.exit(1)
-
+        self.check_path_validity(val)
         val = val.rstrip('/')
         self._full_path = val 
         self.path_as_list = val
@@ -119,6 +123,10 @@ if __name__ == "__main__":
 
     for root, dirs, files in walk(directory, topdown='true'):
         fobj = FileObj(root)
+        print('Dirs: '),
+        print(dirs)
+        print(root)
+        print(files)
 
         for fn in files:
 
@@ -126,5 +134,5 @@ if __name__ == "__main__":
             renamed_file = fobj.path + temp
 
             print(fobj.ppath + fn, fobj.ppath + temp)
-            rename(fobj.path + fn, renamed_file)
+            #rename(fobj.path + fn, renamed_file)
 
