@@ -45,6 +45,7 @@ class FileObj(object):
         self._full_path = val 
         self.path_as_list = val
         self.path = self.path_as_list 
+        self.ppath = self.path_as_list
         self.path_to_name_prefix = self.path_as_list 
 
     @property
@@ -55,6 +56,21 @@ class FileObj(object):
     def path(self, l):
         """ Take a list and concatenate the path as string"""
         self._path = '/'.join(l)
+
+    @property
+    def ppath(self): 
+        if not self._ppath:
+            return self._ppath
+        else:
+            return self._ppath + '/'
+
+    @ppath.setter
+    def ppath(self, l):
+        """ Take a list and concatenate the pretty path as string"""
+        if self._path_as_list[0] == '..':
+            self._ppath = ''.join(l[2:])
+        else:
+            self._ppath = '/'.join(l)
 
     @property
     def path_to_name_prefix(self):
@@ -80,39 +96,35 @@ class FileObj(object):
         self._path_as_list = val.split('/')
         if self._path_as_list[0] == '.':
             self._path_as_list[0] =\
-                path.abspath('./').replace(' ', '_').split('/')[-1]
+                path.abspath('./').split('/')[-1]
             self._path_as_list.insert(0, '..')
 
 
-def trim_redund(t1, t2):
-    t2 = t2.replace('/', '').replace('__-', '').replace('.', '').replace(' ', '_')
-    t1 = t1.replace(' ', '_')
-    print(t1)
-    print(t2)
-    splitted_path = t1.split(t2.replace('__', ''))
+def trim_redund(old_fn, new_fn):
+    
+    splitted_path = old_fn.split(new_fn.split('__')[-1])
     try:
-        return './' + t2 + splitted_path[1]
+        return new_fn + splitted_path[1]
     except:
-        return t1
+        return new_fn + splitted_path[0]
 
 if __name__ == "__main__":
-
-    #import pdb; pdb.set_trace()
 
     if len(sys.argv) > 2:
         print("Taking at most one argument")
         sys.exit(1)
 
     if len(sys.argv) == 2:
-        directory = sys.arv[1]
+        directory = sys.argv[1]
 
     for root, dirs, files in walk(directory, topdown='true'):
         fobj = FileObj(root)
 
-        for file in files:
+        for fn in files:
 
-            renamed_file = fobj.path + fobj.path_to_name_prefix + file 
+            temp = trim_redund(fn, fobj.path_to_name_prefix)
+            renamed_file = fobj.path + temp
 
-            #rename(file, renamed_file)
-            print((fobj.path + file, renamed_file))
+            print(fobj.ppath + fn, fobj.ppath + temp)
+            rename(fobj.path + fn, renamed_file)
 
