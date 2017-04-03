@@ -23,7 +23,7 @@ class FilePathNotValidException(Exception):
     def __init__(self, message, *args):
         self.message = message 
 
-class FileObj(object):
+class PathObj(object):
 
     def __init__(self, p):
         self.full_path = p
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         directory = sys.argv[1]
 
     for root, dirs, files in walk(directory, topdown='true'):
-        fobj = FileObj(root)
+        pobj = PathObj(root)
         print('Dirs: '),
         print(dirs)
         print(root)
@@ -130,9 +130,9 @@ if __name__ == "__main__":
 
         for fn in files:
 
-            temp = trim_redund(fn, fobj.path_to_name_prefix)
-            renamed_file = fobj.path + temp
+            temp = trim_redund(fn, pobj.path_to_name_prefix)
+            renamed_file = pobj.path + temp
 
-            print(fobj.ppath + fn, fobj.ppath + temp)
-            #rename(fobj.path + fn, renamed_file)
+            print(pobj.ppath + fn, pobj.ppath + temp)
+            #rename(pobj.path + fn, renamed_file)
 
