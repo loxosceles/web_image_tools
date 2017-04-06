@@ -1,7 +1,7 @@
 # Web Image Tools
 ## Tools for web image processing
 
-### Web Resizer
+## Web Resizer
   Takes one argument and resizes every single image file in the current folder. The
   argument will always define the longer side of the picture, width or height,
   depending on the orientation.
@@ -15,7 +15,7 @@
   taken as portrait. 
   
   Finally the new resolution will be concatenated to the new
-  filename and saved within a folder which is also named after the new resolution.
+  file name and saved within a folder which is also named after the new resolution.
 
   #### Usage
   web_resizer WIDTH
@@ -27,14 +27,33 @@
   Will result in a 1000x750 resolution for landscape and 750x1000 for portrait. The
   folder containing these new images will be named 1000x750.
 
-### Web Image Renamer
-  Renames every image file inside a given folder hierarchy prepending that folders
-  name to the filename. For every subfolder the parent folders will be part of the
-  new file name, representing the path to that file.
+## Web Image Renamer
+  Recursively renames every image file inside a given folder hierarchy prepending the
+  containing folder name(s) to the file name. 
+
+#### Description
+
+  Web Image Renamer applies some intelligence to its job in a sense that it avoids
+  repeated renaming, i.e. when run several times on the same directories and files.
+
+  A relative or absolute path can be given as an argument but is not necessary. In
+  case Web Image Renamer doesn't encounter one, it assumes the current directory as a
+  staring point and descends every directory which it finds on that level until it
+  finds one or several image files which will be renamed. Every image file on any of
+  these levels will be renamed as well.
+
+  The maximum of path prepending is 3 by default. Going further does probably not
+  make very much sense since folders which are up more than 3 levels from that
+  particular image file are not likely to be useful for classifying it. 
+  This also prevents affecting files outside your image folders in case you happen to
+  execute Web Image Renamer from let's say you root directory.
+
+#### Usage
+
   The top folder can be given as an argument or the tool will asume the current
   folder.
 
-  Example:
+###### Example:
   
   Given the following path:
 
@@ -54,7 +73,5 @@
   specific file:
 
     South_America__Colombia__Bogota__thumbnails__123.jpg
-
-  #### Usage
   
  
