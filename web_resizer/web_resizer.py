@@ -9,16 +9,17 @@ ARGS: basewidth, the width of the resized image
 from PIL import Image
 import glob, os, sys
 
-extention = 'JPG'
+extension = 'jpg'
 
 def resize_img(basewidth):
-    for infile in glob.glob('*.' + extention):
+    for infile in glob.glob('*.' + extension):
         file_name, ext = os.path.splitext(infile)
         img = Image.open(infile)
 
         hsize = calc_height(img.size[0], img.size[1])
 
-        if hasattr(img, '_getexif'):
+        #if hasattr(img, '_getexif'):
+        try:
             orientation = 0x0112
             exif = img._getexif()
             if exif is not None:
@@ -34,7 +35,9 @@ def resize_img(basewidth):
                 else:
                     img = img.resize((basewidth, hsize))
                     resolution = str(basewidth) + "x" + str(hsize)
-            
+        except KeyError:
+            img = img.resize((basewidth, hsize))
+            resolution = str(basewidth) + "x" + str(hsize)
 
         save_dir = str(basewidth) + "x" + str(hsize)
 

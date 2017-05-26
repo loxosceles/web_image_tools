@@ -134,5 +134,5 @@ if __name__ == "__main__":
             renamed_file = pobj.path + temp
 
             print(pobj.ppath + fn, pobj.ppath + temp)
-            #rename(pobj.path + fn, renamed_file)
+            rename(pobj.path + fn, renamed_file)
 
