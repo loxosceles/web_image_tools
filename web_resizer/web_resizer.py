@@ -8,42 +8,75 @@ ARGS: basewidth, the width of the resized image
 
 from PIL import Image
 import glob, os, sys
+import math
 
-extention = 'JPG'
+extension = ['jpg','JPG', 'JPEG', 'jpeg', 'png', 'PNG']
 
-def resize_img(basewidth):
-    for infile in glob.glob('*.' + extention):
+def resize_img(percentage):
+
+    image_files = []
+
+    for imgfile in map(lambda x: '*.' + x, extension):
+        image_files.extend(glob.glob(imgfile))
+
+    for infile in image_files:
         file_name, ext = os.path.splitext(infile)
         img = Image.open(infile)
+        exif_data = img.info['exif']
 
-        hsize = calc_height(img.size[0], img.size[1])
+        w, h = float(img.width), float(img.height)
 
-        if hasattr(img, '_getexif'):
-            orientation = 0x0112
-            exif = img._getexif()
-            if exif is not None:
-                orientation = exif[orientation]
-                rotations = {
-                    3: Image.ROTATE_180,
-                    6: Image.ROTATE_270,
-                    8: Image.ROTATE_90
-                }
-                if orientation in rotations:
-                    img = img.transpose(rotations[orientation]).resize((hsize, basewidth))
-                    resolution = str(hsize) + "x" + str(basewidth)
-                else:
-                    img = img.resize((basewidth, hsize))
-                    resolution = str(basewidth) + "x" + str(hsize)
+        # rotate if necessary
+        img = rotate(img)
+
+        # calculate basewidth from percentage
+        # size: The requested size in pixels, as a 2-tuple: (width, height)
+        # if height bigger than width we have portrait
+        if w < h:
+            print("portrait")
+            height = h * math.sqrt(percentage)
+            width = (w / h) * height
+            print(width, height)
+        # if width bigger than height we have landscape
+        else:
+            print('landscape')
+            width = w * math.sqrt(percentage)
+            height = (h / w) * width 
+            print(width, height)
+
+        print("Printing image size")
+        print("width: ", w)
+        print("height: ", h)
             
 
-        save_dir = str(basewidth) + "x" + str(hsize)
+        img = img.resize((int(width), int(height)))
+        resolution = str(width).split('.')[0] + "x" + str(height).split('.')[0]
+        save_dir = str(percentage).split('.')[-1] + '0%'
 
         if not os.path.isdir(save_dir):
            os.mkdir(save_dir) 
 
-        img.save(save_dir + "/" + file_name + "_" + resolution, "JPEG")
+        img.save(save_dir + "/" + file_name + "_" + resolution + "." + ext, "JPEG", exif=exif_data)
 
         print_current_file(file_name)
+
+def rotate(img):
+    print("Rotating")
+    #if hasattr(img, '_getexif'):
+    try:
+        orientation = 0x0112
+        exif = img._getexif()
+        if exif is not None:
+            orientation = exif[orientation]
+            rotations = {
+                3: Image.ROTATE_180,
+                6: Image.ROTATE_270,
+                8: Image.ROTATE_90
+            }
+            if orientation in rotations:
+                img.transpose(rotations[orientation])
+    finally:
+        return img 
 
 def print_current_file(f):
         print("Resizing " + f)
@@ -55,9 +88,12 @@ def calc_height(orig_width, orig_height):
 if __name__ == "__main__":
     
     if len(sys.argv) < 2:
-        print("\nUsage: web_resizer BASEWIDTH\n")
+        print("\nUsage: web_resizer PERCENT\n")
+        print("Percent has to be given as a decimal between 0.01 and 0.99\n")
         sys.exit()
 
-    w_str = sys.argv[1]
+    # argument is percentage
+    resize_percent = sys.argv[1]
 
-    resize_img(int(w_str))
+
+    resize_img(float(resize_percent))
