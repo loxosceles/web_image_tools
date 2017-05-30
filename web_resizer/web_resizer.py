@@ -8,11 +8,18 @@ ARGS: basewidth, the width of the resized image
 
 from PIL import Image
 import glob, os, sys
+import math
 
-extension = 'jpg'
+extension = ['jpg','JPG', 'JPEG', 'jpeg', 'png', 'PNG']
 
 def resize_img(percentage):
-    for infile in glob.glob('*.' + extension):
+
+    image_files = []
+
+    for imgfile in map(lambda x: '*.' + x, extension):
+        image_files.extend(glob.glob(imgfile))
+
+    for infile in image_files:
         file_name, ext = os.path.splitext(infile)
         img = Image.open(infile)
         exif_data = img.info['exif']
@@ -27,13 +34,13 @@ def resize_img(percentage):
         # if height bigger than width we have portrait
         if w < h:
             print("portrait")
-            height = h * percentage
+            height = h * math.sqrt(percentage)
             width = (w / h) * height
             print(width, height)
         # if width bigger than height we have landscape
         else:
             print('landscape')
-            width = w * percentage
+            width = w * math.sqrt(percentage)
             height = (h / w) * width 
             print(width, height)
 
@@ -49,11 +56,12 @@ def resize_img(percentage):
         if not os.path.isdir(save_dir):
            os.mkdir(save_dir) 
 
-        img.save(save_dir + "/" + file_name + "_" + resolution + "." + extension, "JPEG", exif=exif_data)
+        img.save(save_dir + "/" + file_name + "_" + resolution + "." + ext, "JPEG", exif=exif_data)
 
         print_current_file(file_name)
 
 def rotate(img):
+    print("Rotating")
     #if hasattr(img, '_getexif'):
     try:
         orientation = 0x0112
