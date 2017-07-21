@@ -1,17 +1,31 @@
 #!/usr/bin/env python
-"""
-Web Image Renamer
 
-Rename a every image file inside a given folder and its subfolders. The resulting
-image name will be showing the folder hierarchy in which the files are living.
-Example: ./folder1/subfolder 1/image.png will rename all files under 'subfolder' into
+""" Prepend containing folder names to files.
+
+Renaming is done recursively from the point in the folder hirarchy wich is specified
+by the path. Every level of the hirarchy shows up in the filename in order from root
+to filename location.
+
+Example: ./folder1/subfolder 1/image.png will rename all files under 'subfolder 1' into
 folder1__subfolder_1-image.png.
 
-Spaces will be taken, also within folder names. The path can be given explicitly
-deeper inside the folder hierarchy and only files under the specified folder will be considered.
+Any blank space is replaced by a single underscore, also within folder names. As a
+separator between folder levels a double underscore is used. 
+
+The last specified folder on the path given to the programm will be the one where
+under any files (up to the last level) will be renamed. Any directories which lead
+to this last one will be left unchanged. 
+
 Example: web_image_renamer folder1/subfolder\ 1 will only consider files under
 'subfolder', any image files under 'folder1' will not be renamed. 
+
+If no path is given, the current working directory will be the starting point. 
+
+In order to prevent hazardous behaviour where a whole system could end up being
+renamed the depth is limited to three levels when using an absolute path.
+
 """
+
 from os import rename, path, walk
 import sys
 
@@ -20,10 +34,15 @@ directory = './' # default
 ext = ['JPG', 'jpg', 'png', 'PNG', 'TIFF', 'tiff']
 
 class FilePathNotValidException(Exception):
+
     def __init__(self, message, *args):
         self.message = message 
 
+
 class PathObj(object):
+    """ Keep pathes and names in one place.
+
+    """
 
     def __init__(self, p):
         self.full_path = p
@@ -90,7 +109,7 @@ class PathObj(object):
         except IndexError as e:
             self._path_to_name_prefix =\
                 '__'.join(l[1:]).replace(' ', '_') + '-'
- 
+
     @property
     def path_as_list(self):
         return self._path_as_list
@@ -105,7 +124,8 @@ class PathObj(object):
 
 
 def trim_redund(old_fn, new_fn):
-    
+    """
+    """
     splitted_path = old_fn.split(new_fn.split('__')[-1])
     try:
         return new_fn + splitted_path[1]
@@ -114,9 +134,7 @@ def trim_redund(old_fn, new_fn):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) > 2:
-        print("Taking at most one argument")
-        sys.exit(1)
+    if len(sys.argv) > 2: print("Taking at most one argument") sys.exit(1)
 
     if len(sys.argv) == 2:
         directory = sys.argv[1]
