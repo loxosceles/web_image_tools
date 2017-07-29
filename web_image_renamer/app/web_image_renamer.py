@@ -31,6 +31,7 @@ renamed the depth is limited to three levels when using an absolute path.
 
 from os import rename, path, walk
 import sys
+import argparse
 
 ABS_PATH_LIMIT = 3
 directory = './' # default
@@ -44,7 +45,7 @@ class FilePathNotValidException(Exception):
 
 
 class PathObj(object):
-""" Keep pathes and names in one place.
+    """ Keep pathes and names in one place.
 
     Provide path varibles and methods to modify them for a given path.
 
@@ -59,7 +60,7 @@ class PathObj(object):
       checks if path does exist on the file system otherwise
       raises an exception (PathNotValidException) and aborts.
 
-"""
+    """
 
     def __init__(self, p):
         self.full_path = p
@@ -151,10 +152,18 @@ def trim_redund(old_fn, new_fn):
 
 if __name__ == "__main__":
 
-    if len(sys.argv) > 2: print("Taking at most one argument") sys.exit(1)
+    parser = argparse.ArgumentParser(description=
+                    "Rename image files recursively prepending its directory name(s)")
 
-    if len(sys.argv) == 2:
-        directory = sys.argv[1]
+    # Path argument is optional. If not given we'll assume the current working
+    # directory
+    parser.add_argument('-p', '--path',
+                        help='Path of top-level directory where under the files live')
+    
+    args = vars(parser.parse_args())
+
+    if args['path']:
+        directory = args['path']
 
     for root, dirs, files in walk(directory, topdown='true'):
         pobj = PathObj(root)

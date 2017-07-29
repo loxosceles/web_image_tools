@@ -57,8 +57,9 @@ current working directory by that percentage
 
 #### Usage
 
-  The top folder can be given as an argument or the tool will asume the current
-  folder.
+    usage: web_image_renamer [-h] -p PATH
+
+The top folder can be given as an argument or the tool will asume the current folder.
 
 ###### Example:
   
