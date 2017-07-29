@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 
+
 """ Prepend containing folder names to files.
 
-Renaming is done recursively from the point in the folder hirarchy wich is specified
-by the path. Every level of the hirarchy shows up in the filename in order from root
+
+Renaming is done recursively from the point in the folder hierarchy wich is specified
+by the path. Every level of the hierarchy shows up in the filename in order from root
 to filename location.
 
-Example: ./folder1/subfolder 1/image.png will rename all files under 'subfolder 1' into
-folder1__subfolder_1-image.png.
+Example: ./folder1/subfolder 1/image.png will rename all files under 'subfolder 1'
+into folder1__subfolder_1-image.png.
 
 Any blank space is replaced by a single underscore, also within folder names. As a
 separator between folder levels a double underscore is used. 
 
 The last specified folder on the path given to the programm will be the one where
-under any files (up to the last level) will be renamed. Any directories which lead
-to this last one will be left unchanged. 
+under any files (up to the last level) will be renamed. Any directories which lead to
+this last one will be left unchanged. 
 
 Example: web_image_renamer folder1/subfolder\ 1 will only consider files under
 'subfolder', any image files under 'folder1' will not be renamed. 
@@ -23,6 +25,7 @@ If no path is given, the current working directory will be the starting point.
 
 In order to prevent hazardous behaviour where a whole system could end up being
 renamed the depth is limited to three levels when using an absolute path.
+
 
 """
 
@@ -33,6 +36,7 @@ ABS_PATH_LIMIT = 3
 directory = './' # default
 ext = ['JPG', 'jpg', 'png', 'PNG', 'TIFF', 'tiff']
 
+
 class FilePathNotValidException(Exception):
 
     def __init__(self, message, *args):
@@ -40,20 +44,33 @@ class FilePathNotValidException(Exception):
 
 
 class PathObj(object):
-    """ Keep pathes and names in one place.
+""" Keep pathes and names in one place.
 
-    """
+    Provide path varibles and methods to modify them for a given path.
+
+    The constructor receives one argument which is the path we want 
+    to work on and consecuently calls the full_path setter method.
+    This setter evaluates the full path, normalizes it and divides the path 
+    into a list, which in turn is used by subsecuent setters to create strings
+    for the renaming about to be done.
+
+    
+    check_path_validity 
+      checks if path does exist on the file system otherwise
+      raises an exception (PathNotValidException) and aborts.
+
+"""
 
     def __init__(self, p):
         self.full_path = p
 
     def check_path_validity(self, val):
+    # Check if path does exist on the file system
         if not path.isdir(val):
             raise FilePathNotValidException("File path not valid!")
             sys.exit(1)
 
         if not val.startswith(('/', './')):
-            #val
             pass
 
     @property
@@ -124,8 +141,8 @@ class PathObj(object):
 
 
 def trim_redund(old_fn, new_fn):
-    """
-    """
+    # Clean filename from formerly renamed parts in order to avoid
+    # duplicate file name prefixes when run multiple times
     splitted_path = old_fn.split(new_fn.split('__')[-1])
     try:
         return new_fn + splitted_path[1]
