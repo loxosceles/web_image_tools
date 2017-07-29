@@ -1,33 +1,40 @@
 # Web Image Tools
+
 ## Tools for web image processing
 
-## Web Resizer
-  Takes one argument and resizes every single image file in the current folder. The
-  argument will always define the longer side of the picture, width or height,
-  depending on the orientation.
+### Web Resizer
 
-  Aspect ratio will be calculated automatically and independently for every
-  single image independently. 
-  
-  If the image provieds valid EXIF data this will be used
-  to determine if we're dealing with a landscape or portrait format. An image is
-  processed as landscape in any case and will be rotated after resizing if it was
-  taken as portrait. 
-  
-  Finally the new resolution will be concatenated to the new
-  file name and saved within a folder which is also named after the new resolution.
+Resize images by a given percentage.
 
-  #### Usage
-  web_resizer WIDTH
-  
-  #### Example
+#### Description
 
-    web_resizer 1000
+Takes one argument and resizes every single image file in the current folder based
+on the percentage given. Percentage has to be a value between 0.01 and 0.99.
 
-  Will result in a 1000x750 resolution for landscape and 750x1000 for portrait. The
-  folder containing these new images will be named 1000x750.
+Web Resizer takes care of the aspect ratio and the orientation.
 
-## Web Image Renamer
+If the image provides valid EXIF data this will be used to determine if we're
+dealing with a landscape or portrait format. An image is processed as landscape in
+any case and will be rotated after resizing if it was taken as portrait. 
+
+Finally the new resolution will be concatenated to the new
+file name and saved within a folder which is also named after the new resolution.
+
+#### Usage
+
+    usage: web_resizer [-h] [-p PERCENTAGE]
+
+###### Examples 
+Resize images in current working directory by 40%
+
+    web_resizer -p 0.4
+
+Will ask for scaling percentage and given a valid input resizes images inside
+current working directory by that percentage
+
+    web_resizer
+
+### Web Image Renamer
   Recursively renames every image file inside a given folder hierarchy prepending the
   containing folder name(s) to the file name. 
 
